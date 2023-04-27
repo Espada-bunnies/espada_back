@@ -1,14 +1,15 @@
 from django.contrib.auth import authenticate, login, get_user_model
 from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
 from django.urls import reverse
 from django.db import IntegrityError
 from .tokens import activation_token
 from rest_framework_simplejwt.serializers import RefreshToken
-from django.db.transaction import atomic
+
 
 class RegistrationService:
     @staticmethod
-    @atomic
     def register_user(data):
         try:
             username = data.get("username")
@@ -20,11 +21,10 @@ class RegistrationService:
             token = RefreshToken.for_user(user)
             data["access"] = str(token.access_token)
             data["refresh"] = str(token)
-            send_activate_link(user)
-            return data
+            return data, user
         except IntegrityError:
             return None
-    
+
 
 class LoginService:
     @staticmethod
@@ -40,13 +40,31 @@ class LoginService:
             return data
         else:
             return None
-        
-        
-        
-def send_activate_link(user):
-    send_mail(
-        subject="Activate your account",
-        message=f"{activation_token.make_token(user)} {user.id}",
-        from_email="espada@noreply.org",
-        recipient_list=[user.email],
-    )
+
+
+class ActivationService:
+    @staticmethod
+    def activate_user(user):
+        if user is not None:
+            user.is_active = True
+            user.is_verified = True
+            user.save()
+            return user
+        else:
+            return None
+
+    @staticmethod
+    def decode_uid(uidb64):
+        return urlsafe_base64_decode(uidb64).decode()
+
+    @staticmethod
+    def send_activate_link(request, user):
+        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+        send_mail(
+            subject="Activate your account",
+            message=request.build_absolute_uri(
+                f"{reverse('activate')}?token={activation_token.make_token(user)}&uid={uidb64}"
+            ),
+            from_email="espada@noreply.org",
+            recipient_list=[user.email],
+        )
