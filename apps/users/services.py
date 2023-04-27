@@ -1,10 +1,14 @@
 from django.contrib.auth import authenticate, login, get_user_model
+from django.core.mail import send_mail
+from django.urls import reverse
 from django.db import IntegrityError
+from .tokens import activation_token
 from rest_framework_simplejwt.serializers import RefreshToken
-
+from django.db.transaction import atomic
 
 class RegistrationService:
     @staticmethod
+    @atomic
     def register_user(data):
         try:
             username = data.get("username")
@@ -16,10 +20,11 @@ class RegistrationService:
             token = RefreshToken.for_user(user)
             data["access"] = str(token.access_token)
             data["refresh"] = str(token)
+            send_activate_link(user)
             return data
         except IntegrityError:
             return None
-
+    
 
 class LoginService:
     @staticmethod
@@ -35,3 +40,13 @@ class LoginService:
             return data
         else:
             return None
+        
+        
+        
+def send_activate_link(user):
+    send_mail(
+        subject="Activate your account",
+        message=f"{activation_token.make_token(user)} {user.id}",
+        from_email="espada@noreply.org",
+        recipient_list=[user.email],
+    )

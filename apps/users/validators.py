@@ -1,90 +1,86 @@
 from django.contrib.auth import get_user_model
-from rest_framework.serializers import ValidationError, EmailField
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from .tokens import activation_token
 
 User = get_user_model()
 
-
-class LoginValidator:
+class Validator:
     def __init__(self, data):
         self.data = data
-        self.is_valid = False
         self.errors = {}
 
-    def validate_username(self):
-        errors = self.errors
-        username = self.data.get("username")
-        if not User.objects.filter(username=username).exists():
-            errors["username"] = _("User does not exist")
-
-    def validate_password(self):
-        password = self.data.get("password")
-        errors = self.errors
-
-        if not User.objects.filter(password=password).exists():
-            errors["password"] = _("Password is incorrect")
-
     def validate(self):
-        self.validate_username()
-        self.validate_password()
-        if not self.errors:
-            self.is_valid = True
-        return self.data
+        raise NotImplementedError
 
+    def validate_field_length(self, field_name, min_length):
+        field_value = self.data.get(field_name)
+        if field_value and len(field_value) < min_length:
+            self.errors[field_name] = _(f"{field_name.capitalize()} must be at least {min_length} characters long")
 
-class RegistrationValidator(LoginValidator):
-    def __init__(self, data):
-        super().__init__(data)
+    def validate_alphanumeric(self, field_name):
+        field_value = self.data.get(field_name)
+        if field_value and not field_value.isalnum():
+            self.errors[field_name] = _(f"{field_name.capitalize()} must be alphanumeric")
 
-    def validate_username(self):
-        errors = self.errors
-        errors["username"] = []
+    def validate_special_char(self, field_name):
+        field_value = self.data.get(field_name)
+        if field_value and field_value.isalnum():
+            self.errors[field_name] = _(f"{field_name.capitalize()} must contain at least one special character")
+
+class LoginValidator(Validator):
+    def validate(self):
         username = self.data.get("username")
-        if User.objects.filter(username=username).exists():
-            errors["username"].append(_("Username already exists"))
-        if len(username) < 6:
-            errors["username"].append(_("Username must be at least 6 characters long"))
-        if not username.isalnum():
-            errors["username"].append(_("Username must be alphanumeric"))
-        if len(errors["username"]) == 0:
-            del errors["username"]
-
-    def validate_password(self):
-        errors = self.errors
-        errors["password"] = []
         password = self.data.get("password")
-        if len(password) < 8:
-            errors["password"].append(_("Password must be at least 8 characters long"))
-        if password.isalnum():
-            errors["password"].append(
-                _("Password must contain at least one special character")
-            )
 
-    def validate_confirm_password(self):
-        errors = self.errors
-        password = self.data.get("password")
-        confirm_password = self.data.get("confirm_password")
-        if password != confirm_password:
-            errors["password"].append(_("Passwords do not match"))
-        if len(errors["password"]) == 0:
-            del errors["password"]
+        user = User.objects.filter(username=username).first()
+        if not user:
+            self.errors["username"] = _("User does not exist")
+        elif not user.check_password(password):
+            self.errors["password"] = _("Password is incorrect")
 
-    def validate_email(self):
+        if self.errors:
+            raise ValidationError(self.errors)
+
+class RegistrationValidator(Validator):
+    def validate(self):
+        self.validate_field_length("username", 6)
+        self.validate_alphanumeric("username")
+
+        if User.objects.filter(username=self.data.get("username")).exists():
+            self.errors["username"] = [_("Username already exists")]
+
+        self.validate_field_length("password", 8)
+        self.validate_special_char("password")
+
+        if self.data.get("password") != self.data.get("confirm_password"):
+            self.errors["password"] = [_("Passwords do not match")]
+
         email = self.data.get("email")
-        errors = self.errors
-        errors["email"] = []
         if not email:
-            errors["email"].append(_("Email is required"))
-        if User.objects.filter(email=email).exists():
-            errors["email"].append(_("Email already exists"))
-        if len(errors["email"]) == 0:
-            del errors["email"]
+            self.errors["email"] = [_("Email is required")]
+        elif User.objects.filter(email=email).exists():
+            self.errors["email"] = [_("Email already exists")]
 
-    def validate(self):
-        self.validate_username()
-        self.validate_password()
-        self.validate_confirm_password()
-        self.validate_email()
-        if not self.errors:
-            self.is_valid = True
-        return self.data
+        if self.errors:
+            raise ValidationError(self.errors)
+
+def validate_activation_token(data):
+    errors = {}
+    user_id = data.get("id")
+    token = data.get("token")
+    if not user_id:
+        errors["id"] = _("User id is required")
+    if not token:
+        errors["token"] = _("Token is required")
+
+    user = User.objects.filter(id=user_id).first()
+    if not user:
+        errors["id"] = _("User does not exist")
+    elif not activation_token.check_token(user=user, token=token):
+        errors["token"] = _("Invalid token")
+
+    if errors:
+        raise ValidationError(errors)
+
+    return data

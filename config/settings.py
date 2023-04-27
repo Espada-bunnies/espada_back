@@ -13,6 +13,17 @@ ALLOWED_HOSTS = config(
 )
 AUTH_USER_MODEL = "users.User"
 
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 2
+
+# SMTP
+
+EMAIL_HOST = config("SMTP_HOST", default="localhost", cast=str)
+EMAIL_PORT = config("SMTP_PORT", default=25, cast=int)
+EMAIL_HOST_USER = config("SMTP_USER", default="", cast=str)
+EMAIL_HOST_PASSWORD = config("SMTP_PASSWORD", default="", cast=str)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_USE_TLS = True
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
