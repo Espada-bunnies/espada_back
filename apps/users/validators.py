@@ -5,82 +5,116 @@ from .tokens import activation_token
 
 User = get_user_model()
 
+
+# TODO: add typing to all methods
 class Validator:
-    def __init__(self, data):
-        self.data = data
+    """
+    Base class for all validators in users app
+    errors: dict
+    attrs: dict from serializer (attrs)
+    """
+
+    def __init__(self, attrs):
+        self.attrs = attrs
         self.errors = {}
+
+    def _add_error(self, field_name, message):
+        if field_name not in self.errors:
+            self.errors[field_name] = []
+        self.errors[field_name].append(_(message))
+
+    def is_valid(self):
+        if self.errors:
+            raise ValidationError(self.errors)
+        return self.attrs
+
+
+class AuthValidator(Validator):
+    def validate_field_length(self, field_name, min_length):
+        field_value = self.attrs.get(field_name)
+        if field_value and len(field_value) < min_length:
+            self._add_error(
+                field_name,
+                f"{field_name.capitalize()} must be at least {min_length} characters long",
+            )
+
+    def validate_alphanumeric(self, field_name):
+        field_value = self.attrs.get(field_name)
+        if field_value and not field_value.isalnum():
+            self._add_error(
+                field_name, f"{field_name.capitalize()} must be alphanumeric"
+            )
+
+    def validate_special_char(self, field_name):
+        field_value = self.attrs.get(field_name)
+        if field_value and field_value.isalnum():
+            self._add_error(
+                field_name, f"{field_name.capitalize()} must have special character"
+            )
 
     def validate(self):
         raise NotImplementedError
 
-    def validate_field_length(self, field_name, min_length):
-        field_value = self.data.get(field_name)
-        if field_value and len(field_value) < min_length:
-            self.errors[field_name] = _(f"{field_name.capitalize()} must be at least {min_length} characters long")
 
-    def validate_alphanumeric(self, field_name):
-        field_value = self.data.get(field_name)
-        if field_value and not field_value.isalnum():
-            self.errors[field_name] = _(f"{field_name.capitalize()} must be alphanumeric")
+class LoginValidator(AuthValidator):
+    def validate_exists(self, model, field_name: str, **kwargs):
+        if not model.objects.filter(**kwargs).exists():
+            self._add_error(
+                field_name=field_name,
+                message=f"{field_name.capitalize()} does not exist",
+            )
+        return model.objects.filter(**kwargs).first()
 
-    def validate_special_char(self, field_name):
-        field_value = self.data.get(field_name)
-        if field_value and field_value.isalnum():
-            self.errors[field_name] = _(f"{field_name.capitalize()} must contain at least one special character")
+    def check_password(self, user, password):
+        if not user.check_password(password):
+            self._add_error("password", "Invalid password")
 
-class LoginValidator(Validator):
     def validate(self):
-        username = self.data.get("username")
-        password = self.data.get("password")
+        username = self.attrs.get("username")
+        password = self.attrs.get("password")
+        user = self.validate_exists(User, "username", username=username)
+        self.check_password(user, password)
+        return self.is_valid()
 
-        user = User.objects.filter(username=username).first()
-        if not user:
-            self.errors["username"] = _("User does not exist")
-        elif not user.check_password(password):
-            self.errors["password"] = _("Password is incorrect")
 
-        if self.errors:
-            raise ValidationError(self.errors)
+class RegisterValidator(AuthValidator):
+    def validate_not_exists(self, model, field_name, **kwargs):
+        if model.objects.filter(**kwargs).exists():
+            self._add_error(field_name, f"{field_name.capitalize()} already exists")
 
-class RegistrationValidator(Validator):
+    def validate_confirm_password(self, password, confirm_password):
+        if password != confirm_password:
+            self._add_error("confirm_password", "Passwords do not match")
+
     def validate(self):
-        self.validate_field_length("username", 6)
+        self.validate_field_length("username", 5)
         self.validate_alphanumeric("username")
-
-        if User.objects.filter(username=self.data.get("username")).exists():
-            self.errors["username"] = [_("Username already exists")]
-
+        self.validate_not_exists(User, "username", username=self.attrs.get("username"))
         self.validate_field_length("password", 8)
         self.validate_special_char("password")
+        self.validate_not_exists(User, "email", email=self.attrs.get("email"))
+        self.validate_confirm_password(
+            self.attrs.get("password"), self.attrs.get("confirm_password")
+        )
+        return self.is_valid()
 
-        if self.data.get("password") != self.data.get("confirm_password"):
-            self.errors["password"] = [_("Passwords do not match")]
 
-        email = self.data.get("email")
-        if not email:
-            self.errors["email"] = [_("Email is required")]
-        elif User.objects.filter(email=email).exists():
-            self.errors["email"] = [_("Email already exists")]
+class ResetPasswordValidator(AuthValidator):
+    def validate(self):
+        self.validate_field_length("password", 8)
+        self.validate_special_char("password")
+        self.validate_confirm_password(
+            self.attrs.get("password"), self.attrs.get("confirm_password")
+        )
+        return self.is_valid()
 
-        if self.errors:
-            raise ValidationError(self.errors)
 
-def validate_activation_token(data):
-    errors = {}
-    user_id = data.get("id")
-    token = data.get("token")
-    if not user_id:
-        errors["id"] = _("User id is required")
-    if not token:
-        errors["token"] = _("Token is required")
-
-    user = User.objects.filter(id=user_id).first()
-    if not user:
-        errors["id"] = _("User does not exist")
-    elif not activation_token.check_token(user=user, token=token):
-        errors["token"] = _("Invalid token")
-
-    if errors:
-        raise ValidationError(errors)
-
-    return data
+class ActivationTokenValidator(Validator):
+    def validate(self):
+        user = User.objects.filter(id=self.attrs.get("id")).first()
+        if (
+            not activation_token.check_token(user, self.attrs.get("token"))
+            and not user is None
+        ):
+            self._add_error("token", "Invalid token")
+        return self.is_valid()
