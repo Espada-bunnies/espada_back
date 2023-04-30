@@ -40,7 +40,8 @@ INSTALLED_APPS = [
 
     'rest_framework',
 
-    'espada_back.comments',
+    'comments',
+    'posts',
 ]
 
 MIDDLEWARE = [

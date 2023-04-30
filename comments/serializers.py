@@ -25,7 +25,9 @@ class CommentDislikeSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     likes = CommentLikeSerializer(many=True, required=False)
+    likes_count = serializers.IntegerField(read_only=True)
     dislikes = CommentDislikeSerializer(many=True, required=False)
+    dislikes_count = serializers.IntegerField(read_only=True)
     images = CommentImageSerializer(many=True, required=False)
     reply_to = serializers.IntegerField(write_only=True, required=False)
     upload_images = serializers.ListField(

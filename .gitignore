@@ -4,3 +4,4 @@ venv
 __pycache__
 migrations
 /espada_back/comments/apps.py
+db.sqlite3
