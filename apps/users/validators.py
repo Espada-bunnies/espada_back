@@ -84,7 +84,7 @@ class RegisterValidator(AuthValidator):
 
     def validate_confirm_password(self, password, confirm_password):
         if password != confirm_password:
-            self._add_error("confirm_password", "Passwords do not match")
+            self._add_error("password", "Passwords do not match")
 
     def validate(self):
         self.validate_field_length("username", 5)

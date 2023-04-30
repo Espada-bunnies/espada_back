@@ -7,4 +7,4 @@ class UserActivationTokenGenerator(PasswordResetTokenGenerator):
         return str(user.pk) + str(timestamp) + str(user.is_verified)
 
 
-activation_token = PasswordResetTokenGenerator()
+activation_token = UserActivationTokenGenerator()

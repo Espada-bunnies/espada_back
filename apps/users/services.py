@@ -61,7 +61,7 @@ class ActivationService:
     def send_activate_link(request, user):
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
         send_mail(
-            subject="Activate your account",
+            subject="Verify your email",
             message=request.build_absolute_uri(
                 f"{reverse('activate')}?token={activation_token.make_token(user)}&uid={uidb64}"
             ),

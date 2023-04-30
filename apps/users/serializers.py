@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.core.exceptions import ValidationError
-from .models import User
 from .services import RegistrationService, LoginService, ActivationService
 from .validators import (
     RegisterValidator,
@@ -9,6 +8,7 @@ from .validators import (
     ResetPasswordValidator,
 )
 from django.db.transaction import atomic
+
 
 class LoginUserSerializer(serializers.Serializer):
     username = serializers.CharField()

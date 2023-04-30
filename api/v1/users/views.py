@@ -34,7 +34,7 @@ class RegisterView(views.APIView):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ActivateView(views.APIView):
@@ -54,7 +54,7 @@ class ActivateView(views.APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(
-            {"message:": "Account activated successfully"}, status=status.HTTP_200_OK
+            {"message:": "Account verified successfully"}, status=status.HTTP_200_OK
         )
 
 
