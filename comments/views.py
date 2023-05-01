@@ -1,4 +1,6 @@
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -10,8 +12,9 @@ from comments.utils import add_or_remove_like, get_list_data, add_or_remove_disl
 class CommentView(ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-
-    # permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_backends = (OrderingFilter,)
+    ordering_fields = ('created_at', 'likes_count', 'dislikes_count')
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         post_id = self.kwargs.get('id')
@@ -19,7 +22,8 @@ class CommentView(ModelViewSet):
         return get_update_queryset(self.queryset)
 
     def list(self, request, *args, **kwargs):
-        serializer = get_list_data(self.get_queryset())
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = get_list_data(queryset)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
@@ -32,8 +36,7 @@ class CommentView(ModelViewSet):
 class CommentLikeView(CreateAPIView):
     queryset = CommentLike.objects.all()
     serializer_class = CommentLikeSerializer
-
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         need_add = add_or_remove_like(request, *args, **kwargs)
@@ -45,8 +48,7 @@ class CommentLikeView(CreateAPIView):
 class CommentDislikeView(CreateAPIView):
     queryset = CommentDislike.objects.all()
     serializer_class = CommentDislikeSerializer
-
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         need_add = add_or_remove_dislike(request, *args, **kwargs)
