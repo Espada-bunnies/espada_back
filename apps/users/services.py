@@ -19,8 +19,8 @@ class RegistrationService:
                 username=username, email=email, password=password
             )
             token = RefreshToken.for_user(user)
-            data["access"] = str(token.access_token)
-            data["refresh"] = str(token)
+            data["access_token"] = str(token.access_token)
+            data["refresh_token"] = str(token)
             return data, user
         except IntegrityError:
             return None
@@ -28,13 +28,16 @@ class RegistrationService:
 
 class LoginService:
     @staticmethod
-    def login_user(data, request):
+    def login_user(request, data):
         username = data.get("username")
-        password = data.get("password")
-        user = authenticate(request, username=username, password=password)
+        password = data.pop("password")
+        user = authenticate(username=username, password=password)
         if user is not None:
-            login(request, user)
-            token = RefreshToken.for_user(user)
+            login(request, user=user)
+            try:
+                token = RefreshToken.objects.get(user=user)
+            except RefreshToken.DoesNotExist:
+                token = RefreshToken.for_user(user)
             data["access"] = str(token.access_token)
             data["refresh"] = str(token)
             return data

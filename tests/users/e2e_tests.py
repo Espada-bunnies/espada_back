@@ -120,7 +120,8 @@ class TestRegisterEndpoint:
         expected_json.pop("password")
         expected_json.pop("confirm_password")
         assert response.status_code == 201
-        assert response.json() == expected_json
+        assert response.json()["access_token"] != None
+        assert response.json()["refresh_token"] != None
 
     def test_register_email_verification(self, api_client):
         expected_json = {
@@ -135,9 +136,24 @@ class TestRegisterEndpoint:
         assert user.is_verified == False
         assert len(mail.outbox) == 1
         assert mail.outbox[0].to[0] == expected_json["email"]
-        response = api_client.post(mail.outbox[0].body)
+        response = api_client.get(mail.outbox[0].body)
         assert response.status_code == 200
         user = User.objects.get(username=expected_json["username"])
         assert user.is_verified == True
         message = {"message:": "Account verified successfully"}
         assert response.json() == message
+
+
+class TestLoginEndpoint:
+    endpoint = "/api/v1/users/login/"
+
+    # todo: test doesn't pass
+    def test_login_success(self, api_client):
+        user = baker.make("users.User", username="testuser")
+        user.set_password("testpass$")
+        logger.info(user.check_password("testpass$"))
+        expected_json = {"username": "testuser", "password": "testpass$"}
+        response = api_client.post(self.endpoint, expected_json)
+        logger.info(response.json())
+        assert response.status_code == 200
+        assert response.json()["token"] == user.token

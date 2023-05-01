@@ -7,19 +7,23 @@ from apps.users.serializers import (
     ChangePasswordSerializer,
 )
 from apps.users.models import User
-from apps.users.services import ActivationService
+from apps.users.services import ActivationService, LoginService
 import logging
 
 logger = logging.getLogger("django")
 
 
 class LoginView(views.APIView):
-    permission_classes = [permissions.AllowAny, permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         serializer = LoginUserSerializer(data=request.data)
+        #TODO: is it ok to put if here ?
         if serializer.is_valid(raise_exception=True):
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            data = serializer.validated_data
+            return Response(
+                LoginService.login_user(request, data), status=status.HTTP_200_OK
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -38,12 +42,11 @@ class RegisterView(views.APIView):
 
 
 class ActivateView(views.APIView):
-    # TODO: Add get method to send activation link again
     permission_classes = [
         permissions.AllowAny,
     ]
 
-    def post(self, request, pk=None):
+    def get(self, request, pk=None):
         logger.info(request.query_params)
         id = ActivationService.decode_uid(request.query_params.get("uid"))
         request.query_params._mutable = True
@@ -55,6 +58,25 @@ class ActivateView(views.APIView):
         serializer.save()
         return Response(
             {"message:": "Account verified successfully"}, status=status.HTTP_200_OK
+        )
+
+
+class ResendActivationView(views.APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def post(self, request):
+        user = User.objects.filter(email=request.data.get("email")).first()
+        if user:
+            ActivationService.send_activation_email(user)
+            return Response(
+                {"message:": "Activation email sent successfully"},
+                status=status.HTTP_200_OK,
+            )
+        return Response(
+            {"message:": "User with this email does not exist"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
