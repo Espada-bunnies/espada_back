@@ -12,9 +12,7 @@ from django.db.transaction import atomic
 
 class LoginUserSerializer(serializers.Serializer):
     username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
-    access = serializers.CharField(read_only=True)
-    refresh = serializers.CharField(read_only=True)
+    password = serializers.CharField()
 
     def validate(self, attrs):
         validator = LoginValidator(attrs)
@@ -29,8 +27,6 @@ class RegisterUserSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
-    access_token = serializers.CharField(read_only=True)
-    refresh_token = serializers.CharField(read_only=True)
 
     def validate(self, attrs):
         validator = RegisterValidator(attrs)

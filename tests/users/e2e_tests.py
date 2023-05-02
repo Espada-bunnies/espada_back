@@ -147,13 +147,10 @@ class TestRegisterEndpoint:
 class TestLoginEndpoint:
     endpoint = "/api/v1/users/login/"
 
-    # todo: test doesn't pass
     def test_login_success(self, api_client):
-        user = baker.make("users.User", username="testuser")
-        user.set_password("testpass$")
-        logger.info(user.check_password("testpass$"))
-        expected_json = {"username": "testuser", "password": "testpass$"}
+        user = User.objects.create_user(username="testuser", password="testpass$")
+        expected_json = {"username": user.username, "password": "testpass$"}
         response = api_client.post(self.endpoint, expected_json)
-        logger.info(response.json())
         assert response.status_code == 200
-        assert response.json()["token"] == user.token
+        assert response.json()["access_token"] != None
+        assert response.json()["refresh_token"] != None

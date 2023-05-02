@@ -73,7 +73,8 @@ class LoginValidator(AuthValidator):
         username = self.attrs.get("username")
         password = self.attrs.get("password")
         user = self.validate_exists(User, "username", username=username)
-        self.check_password(user, password)
+        if user:
+            self.check_password(user, password)
         return self.is_valid()
 
 

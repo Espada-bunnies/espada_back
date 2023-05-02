@@ -8,6 +8,7 @@ from .tokens import activation_token
 from rest_framework_simplejwt.serializers import RefreshToken
 
 
+# TODO: add types to all methods and docs
 class RegistrationService:
     @staticmethod
     def register_user(data):
@@ -34,12 +35,9 @@ class LoginService:
         user = authenticate(username=username, password=password)
         if user is not None:
             login(request, user=user)
-            try:
-                token = RefreshToken.objects.get(user=user)
-            except RefreshToken.DoesNotExist:
-                token = RefreshToken.for_user(user)
-            data["access"] = str(token.access_token)
-            data["refresh"] = str(token)
+            token = RefreshToken.for_user(user)
+            data["access_token"] = str(token.access_token)
+            data["refresh_token"] = str(token)
             return data
         else:
             return None

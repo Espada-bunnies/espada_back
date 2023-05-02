@@ -18,12 +18,9 @@ class LoginView(views.APIView):
 
     def post(self, request):
         serializer = LoginUserSerializer(data=request.data)
-        #TODO: is it ok to put if here ?
         if serializer.is_valid(raise_exception=True):
-            data = serializer.validated_data
-            return Response(
-                LoginService.login_user(request, data), status=status.HTTP_200_OK
-            )
+            data = LoginService.login_user(request, serializer.data)
+            return Response(data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -37,8 +34,8 @@ class RegisterView(views.APIView):
             data=request.data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        data = serializer.save()
+        return Response(data, status=status.HTTP_201_CREATED)
 
 
 class ActivateView(views.APIView):
@@ -92,3 +89,14 @@ class ChangePasswordView(views.APIView):
         return Response(
             {"message:": "Password changed successfully"}, status=status.HTTP_200_OK
         )
+
+
+class ResetPasswordView(views.APIView):
+    """
+    This view is used to send reset password link to user's email after registration or login
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        ActivationService.send_reset_password_link(request, request.user)
