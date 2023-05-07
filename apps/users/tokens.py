@@ -1,5 +1,6 @@
-from .models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
+from .models import User
 
 
 class UserActivationTokenGenerator(PasswordResetTokenGenerator):

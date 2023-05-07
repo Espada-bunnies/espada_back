@@ -1,11 +1,13 @@
-from django.core.mail import send_mail
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
-from django.urls import reverse
-from .tokens import activation_token
-from rest_framework_simplejwt.serializers import RefreshToken
-from .repositories import UserRepository
 import logging
+
+from django.core.mail import send_mail
+from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from rest_framework_simplejwt.serializers import RefreshToken
+
+from .repositories import UserRepository
+from .tokens import activation_token
 
 logger = logging.getLogger("django")
 

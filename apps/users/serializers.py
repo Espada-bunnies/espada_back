@@ -1,18 +1,17 @@
-from rest_framework import serializers
 from django.core.exceptions import ValidationError
-from .services import RegistrationService, LoginService, ActivationService
-from .validators import (
-    RegisterValidator,
-    LoginValidator,
-    ActivationTokenValidator,
-    ResetPasswordValidator,
-)
 from django.db.transaction import atomic
+from rest_framework import serializers
+
+from .services import ActivationService, LoginService, RegistrationService
+from .validators import (ActivationTokenValidator, LoginValidator,
+                         RegisterValidator, ResetPasswordValidator)
 
 
 class LoginUserSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+    access_token = serializers.CharField(read_only=True)
+    refresh_token = serializers.CharField(read_only=True)
 
     def validate(self, attrs):
         validator = LoginValidator(attrs)
@@ -27,6 +26,8 @@ class RegisterUserSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
+    access_token = serializers.CharField(read_only=True)
+    refresh_token = serializers.CharField(read_only=True)
 
     def validate(self, attrs):
         validator = RegisterValidator(attrs)
@@ -61,7 +62,6 @@ class ChangePasswordSerializer(serializers.Serializer):
     confirm_password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        user = self.context.get("user")
         validator = ResetPasswordValidator(attrs)
         return validator.validate()
 

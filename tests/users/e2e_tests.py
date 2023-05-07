@@ -1,6 +1,7 @@
+import logging
+
 import pytest
 from django.core import mail
-import logging
 from model_bakery import baker
 
 from apps.users.models import User
