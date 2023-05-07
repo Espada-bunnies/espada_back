@@ -40,8 +40,10 @@ INSTALLED_APPS = [
 
     'rest_framework',
 
-    'comments',
-    'posts',
+    'mptt',
+
+    'apps.comments',
+    'apps.posts',
 ]
 
 MIDDLEWARE = [

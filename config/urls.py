@@ -20,6 +20,5 @@ from rest_framework import routers
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('posts/<int:id>/', include('comments.urls', namespace='comments')),
-    path('posts/', include('posts.urls', namespace='posts'))
+    path('api/v1/', include('api.v1.urls'))
 ]
