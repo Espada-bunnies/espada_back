@@ -19,7 +19,7 @@ class LoginView(views.APIView):
     def post(self, request):
         serializer = LoginUserSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            data = LoginService.login_user(request, serializer.data)
+            data = LoginService.login_user(serializer.data)
             return Response(data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

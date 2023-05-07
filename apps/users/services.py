@@ -1,40 +1,35 @@
-from django.contrib.auth import authenticate, login, get_user_model
 from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.urls import reverse
-from django.db import IntegrityError
 from .tokens import activation_token
 from rest_framework_simplejwt.serializers import RefreshToken
+from .repositories import UserRepository
+import logging
+
+logger = logging.getLogger("django")
 
 
-# TODO: add types to all methods and docs
 class RegistrationService:
     @staticmethod
     def register_user(data):
-        try:
-            username = data.get("username")
-            email = data.get("email")
-            password = data.get("password")
-            user = get_user_model().objects.create_user(
-                username=username, email=email, password=password
-            )
+        user = UserRepository.create_user(data)
+        if user:
             token = RefreshToken.for_user(user)
             data["access_token"] = str(token.access_token)
             data["refresh_token"] = str(token)
             return data, user
-        except IntegrityError:
+        else:
             return None
 
 
 class LoginService:
     @staticmethod
-    def login_user(request, data):
+    def login_user(data):
         username = data.get("username")
         password = data.pop("password")
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            login(request, user=user)
+        user = UserRepository.get_user_by_username(username)
+        if user and user.check_password(password):
             token = RefreshToken.for_user(user)
             data["access_token"] = str(token.access_token)
             data["refresh_token"] = str(token)
@@ -46,10 +41,8 @@ class LoginService:
 class ActivationService:
     @staticmethod
     def activate_user(user):
-        if user is not None:
-            user.is_active = True
-            user.is_verified = True
-            user.save()
+        if user:
+            UserRepository.activate_user(user)
             return user
         else:
             return None
@@ -69,3 +62,9 @@ class ActivationService:
             from_email="espada@noreply.org",
             recipient_list=[user.email],
         )
+
+
+class UserService:
+    @staticmethod
+    def get_user_by_id(user_id):
+        return UserRepository.get_user_by_id(user_id)

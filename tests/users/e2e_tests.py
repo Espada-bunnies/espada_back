@@ -1,7 +1,5 @@
 import pytest
 from django.core import mail
-import factory
-import json
 import logging
 from model_bakery import baker
 

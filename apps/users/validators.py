@@ -61,13 +61,13 @@ class LoginValidator(AuthValidator):
         if not model.objects.filter(**kwargs).exists():
             self._add_error(
                 field_name=field_name,
-                message=f"{field_name.capitalize()} does not exist",
+                message=f"{model.__name__.capitalize()} does not exist",
             )
         return model.objects.filter(**kwargs).first()
 
     def check_password(self, user, password):
         if not user.check_password(password):
-            self._add_error("password", "Invalid password")
+            self._add_error("password", "Incorrect password")
 
     def validate(self):
         username = self.attrs.get("username")
