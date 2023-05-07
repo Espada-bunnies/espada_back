@@ -1,5 +1,6 @@
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
+
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     # Third party apps
     "rest_framework",
     "rest_framework_simplejwt",
+    "drf_spectacular",
     # Local apps
     "apps.users.apps.UsersConfig",
 ]
@@ -71,7 +73,9 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            BASE_DIR / "templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -89,8 +93,12 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": config("DB_ENGINE", default="django.db.backends.sqlite3", cast=str),
+        "NAME": config("DB_NAME", default="db.sqlite3", cast=str),
+        "USER": config("DB_USER", default="", cast=str),
+        "PASSWORD": config("DB_PASSWORD", default="", cast=str),
+        "HOST": config("DB_HOST", default="", cast=str),
+        "PORT": config("DB_PORT", default="", cast=str),
     }
 }
 
@@ -127,6 +135,8 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 # SIMPLE JWT
@@ -157,4 +167,13 @@ SIMPLE_JWT = {
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
     "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
     "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+}
+
+# SPECTACULAR
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Espada API",
+    "DESCRIPTION": "Description",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # OTHER SETTINGS
 }
