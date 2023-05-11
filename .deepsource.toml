@@ -1,8 +1,10 @@
 version = 1
 
 test_patterns = [
+  "tests/**/*",
   "tests/*",
-  "test*.py"
+  "test*.py",
+  "tests.py", "test_*.py","*_tests.py"
 ]
 
 exclude_patterns = [".*"]
