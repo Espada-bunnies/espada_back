@@ -2,8 +2,7 @@ import logging
 
 import pytest
 
-from apps.users.services import (ActivationService, LoginService,
-                                 RegistrationService)
+from apps.users.services import ActivationService, LoginService, RegistrationService
 from tests.users.factories import UserFactory
 
 logger = logging.getLogger("django")
