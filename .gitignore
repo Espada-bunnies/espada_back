@@ -3,5 +3,6 @@ venv
 .idea
 __pycache__
 migrations
-/espada_back/comments/apps.py
+.env
 db.sqlite3
+.pytest_cache
