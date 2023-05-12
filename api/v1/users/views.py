@@ -7,10 +7,12 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from apps.users.models import User
-from apps.users.serializers import (ActivateUserSerializer,
-                                    ChangePasswordSerializer,
-                                    LoginUserSerializer,
-                                    RegisterUserSerializer)
+from apps.users.serializers import (
+    ActivateUserSerializer,
+    ChangePasswordSerializer,
+    LoginUserSerializer,
+    RegisterUserSerializer,
+)
 from apps.users.services import ActivationService, LoginService
 
 logger = logging.getLogger("django")

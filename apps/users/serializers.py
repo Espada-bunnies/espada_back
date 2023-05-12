@@ -3,8 +3,12 @@ from django.db.transaction import atomic
 from rest_framework import serializers
 
 from .services import ActivationService, LoginService, RegistrationService
-from .validators import (ActivationTokenValidator, LoginValidator,
-                         RegisterValidator, ResetPasswordValidator)
+from .validators import (
+    ActivationTokenValidator,
+    LoginValidator,
+    RegisterValidator,
+    ResetPasswordValidator,
+)
 
 
 class LoginUserSerializer(serializers.Serializer):
