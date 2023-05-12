@@ -5,4 +5,3 @@ from apps.comments.models import Comment, CommentRating
 
 admin.site.register(Comment, MPTTModelAdmin)
 admin.site.register(CommentRating)
-

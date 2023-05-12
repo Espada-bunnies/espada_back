@@ -2,15 +2,15 @@ import datetime
 
 from rest_framework import serializers
 
-from apps._instruments.validators.validators import ImagesValidator, BodyValidator
+from apps._instruments.validators.validators import BodyValidator, ImagesValidator
 from apps.posts.container import post_service
-from apps.posts.models import PostImage, Post
+from apps.posts.models import Post, PostImage
 
 
 class PostImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostImage
-        fields = '__all__'
+        fields = "__all__"
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -22,13 +22,13 @@ class PostSerializer(serializers.ModelSerializer):
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True,
         required=False,
-        validators=(ImagesValidator(),)
+        validators=(ImagesValidator(),),
     )
     body = serializers.CharField(validators=(BodyValidator(),))
 
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = "__all__"
 
     def create(self, validated_data):
         return post_service.create(validated_data)
