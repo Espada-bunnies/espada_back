@@ -54,8 +54,11 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
+    "mptt",
     # Local apps
     "apps.users.apps.UsersConfig",
+    "apps.posts.apps.PostsConfig",
+    "apps.comments.apps.CommentsConfig"
 ]
 
 MIDDLEWARE = [
