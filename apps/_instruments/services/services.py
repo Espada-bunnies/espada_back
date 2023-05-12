@@ -7,4 +7,3 @@ class PostService(ActionService):
 
 class CommentService(ActionService):
     pass
-
