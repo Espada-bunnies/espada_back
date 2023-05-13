@@ -1,8 +1,8 @@
-from apps.users.models import User
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
 from apps.posts.models import Post
+from apps.users.models import User
 
 
 class Comment(MPTTModel):
