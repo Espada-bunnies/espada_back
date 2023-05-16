@@ -1,14 +1,18 @@
 import pytest
-from apps.users.models import User
 
 from apps.posts.models import Post
+from apps.users.models import User
 
 
 @pytest.fixture
 def create_users(api_client):
-    User.objects.create(username="Xelo", password="23123Jdasdwe", email='nano@mail.ru')
-    User.objects.create(username="Ceas", password="(9kddkJJJ", email='yamulfile@mail.ru')
-    User.objects.create(username="Roma", password="_-ddsJJJd22", email='sobaka@gmail.com')
+    User.objects.create(username="Xelo", password="23123Jdasdwe", email="nano@mail.ru")
+    User.objects.create(
+        username="Ceas", password="(9kddkJJJ", email="yamulfile@mail.ru"
+    )
+    User.objects.create(
+        username="Roma", password="_-ddsJJJd22", email="sobaka@gmail.com"
+    )
 
 
 @pytest.fixture
