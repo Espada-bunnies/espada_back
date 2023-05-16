@@ -6,9 +6,9 @@ from apps.posts.models import Post
 
 @pytest.fixture
 def create_users(api_client):
-    User.objects.create(username="Xelo", password="23123Jdasdwe")
-    User.objects.create(username="Ceas", password="(9kddkJJJ")
-    User.objects.create(username="Roma", password="_-ddsJJJd22")
+    User.objects.create(username="Xelo", password="23123Jdasdwe", email='nano@mail.ru')
+    User.objects.create(username="Ceas", password="(9kddkJJJ", email='yamulfile@mail.ru')
+    User.objects.create(username="Roma", password="_-ddsJJJd22", email='sobaka@gmail.com')
 
 
 @pytest.fixture
