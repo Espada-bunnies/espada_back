@@ -2,9 +2,11 @@ from django.http import QueryDict
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from apps._instruments.permissions import IsAuthorOrReadOnly
 from apps.posts.container import post_service
 from apps.posts.models import Post
 from apps.posts.serializers import PostSerializer
@@ -17,7 +19,7 @@ class PostView(ModelViewSet):
     search_fields = ("body", "user__username")
     ordering_fields = ("created_at", "likes_count", "dislikes_count")
 
-    # permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAuthorOrReadOnly,)
 
     def get_queryset(self):
         return post_service.get_update_queryset(self.queryset)
@@ -30,7 +32,7 @@ class PostView(ModelViewSet):
 
 
 class PostActionView(CreateAPIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
         post_service.logic_for_like_dislike_or_sharing(request, *args, **kwargs)

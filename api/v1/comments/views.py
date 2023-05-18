@@ -1,6 +1,7 @@
 from django.http import QueryDict
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -16,7 +17,7 @@ class CommentView(ModelViewSet):
     serializer_class = CommentSerializer
     filter_backends = (OrderingFilter,)
     ordering_fields = ("created_at", "likes_count", "dislikes_count")
-    # permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAuthorOrReadOnly,)
     pagination_class = CommentPaginationPage
 
     def get_queryset(self):
@@ -33,7 +34,7 @@ class CommentView(ModelViewSet):
 
 
 class CommentActionView(CreateAPIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         comment_service.logic_for_like_dislike_or_sharing(request, *args, **kwargs)

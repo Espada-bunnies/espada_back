@@ -20,3 +20,19 @@ def create_posts(api_client):
     Post.objects.create(body="Лошата ми контаре", user_id=2)
     Post.objects.create(body="Асталависта бейби", user_id=3)
     Post.objects.create(body="Ал би бэк", user_id=1)
+
+
+@pytest.fixture
+def headers(api_client):
+    data = {
+        "username": "omgsheet",
+        "email": "nanotaro@mail.ru",
+        "password": "189212Jajo-",
+        "confirm_password": "189212Jajo-"
+    }
+    response = api_client.post(path="/api/v1/users/register/", data=data)
+    token = response.data.get("access_token")
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    return headers
