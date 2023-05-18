@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
-from apps._instruments.validators.validators import (BodyValidator,
-                                                     ImagesValidator)
+from apps._instruments.validators.validators import BodyValidator, ImagesValidator
 from apps.comments.container import comment_service
 from apps.comments.models import Comment, CommentImage
 
