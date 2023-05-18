@@ -10,9 +10,7 @@ class BodyValidator:
 
     @staticmethod
     def get_all_badwords():
-        with open(
-            "./words.txt", "r", encoding="utf-8"
-        ) as file:
+        with open("./words.txt", "r", encoding="utf-8") as file:
             return map(lambda row: row.rstrip("\n"), file.readlines())
 
 
