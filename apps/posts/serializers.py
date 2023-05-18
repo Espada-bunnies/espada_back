@@ -2,8 +2,7 @@ import datetime
 
 from rest_framework import serializers
 
-from apps._instruments.validators.validators import (BodyValidator,
-                                                     ImagesValidator)
+from apps._instruments.validators.validators import BodyValidator, ImagesValidator
 from apps.posts.container import post_service
 from apps.posts.models import Post, PostImage
 
