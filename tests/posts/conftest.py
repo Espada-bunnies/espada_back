@@ -28,11 +28,9 @@ def headers(api_client):
         "username": "omgsheet",
         "email": "nanotaro@mail.ru",
         "password": "189212Jajo-",
-        "confirm_password": "189212Jajo-"
+        "confirm_password": "189212Jajo-",
     }
     response = api_client.post(path="/api/v1/users/register/", data=data)
     token = response.data.get("access_token")
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
+    headers = {"Authorization": f"Bearer {token}"}
     return headers
