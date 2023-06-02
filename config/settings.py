@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "drf_spectacular",
     "mptt",
+    "django_elasticsearch_dsl",
+    "django_elasticsearch_dsl_drf",
     # Local apps
     "apps.users.apps.UsersConfig",
     "apps.posts.apps.PostsConfig",
@@ -133,6 +135,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # REST FRAMEWORK
+"""
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -141,7 +144,7 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
-
+"""
 # SIMPLE JWT
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
@@ -180,3 +183,10 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     # OTHER SETTINGS
 }
+
+ELASTICSEARCH_DSL = {
+    "default": {
+        "hosts": "localhost:9200"
+    }
+}
+

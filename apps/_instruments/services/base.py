@@ -12,7 +12,9 @@ class PublicationService(Service):
         super().__init__(*args, **kwargs)
         self.image_queryset = image_queryset
 
-    def get_update_queryset(self, queryset: TreeQuerySet) -> TreeQuerySet:
+    def get_update_queryset(self, queryset, category):
+        if category != 'all':
+            queryset = queryset.filter(category__name=category)
         update_queryset = queryset.annotate(
             likes_count=Count("ratings", filter=Q(ratings__positive=True)),
             dislikes_count=Count("ratings", filter=Q(ratings__positive=False)),
