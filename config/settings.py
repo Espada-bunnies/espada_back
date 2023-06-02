@@ -184,9 +184,4 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 
-ELASTICSEARCH_DSL = {
-    "default": {
-        "hosts": "localhost:9200"
-    }
-}
-
+ELASTICSEARCH_DSL = {"default": {"hosts": "localhost:9200"}}

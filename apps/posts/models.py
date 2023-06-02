@@ -2,6 +2,7 @@ from django.db import models
 
 from apps.users.models import User
 
+
 class Category(models.Model):
     name = models.CharField(max_length=220)
 
@@ -12,7 +13,7 @@ class Post(models.Model):
         to=User, on_delete=models.SET_NULL, related_name="posts", null=True
     )
     category = models.ForeignKey(
-        to=Category, on_delete=models.SET_NULL, related_name='posts', null=True
+        to=Category, on_delete=models.SET_NULL, related_name="posts", null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(editable=False, null=True, blank=True)
