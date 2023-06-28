@@ -32,7 +32,6 @@ LOGGING = {
     },
 }
 
-
 # SMTP
 
 EMAIL_HOST = config("SMTP_HOST", default="localhost", cast=str)
@@ -41,7 +40,6 @@ EMAIL_HOST_USER = config("SMTP_USER", default="", cast=str)
 EMAIL_HOST_PASSWORD = config("SMTP_PASSWORD", default="", cast=str)
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_USE_TLS = True
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -90,7 +88,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-
 DATABASES = {
     "default": {
         "ENGINE": config("DB_ENGINE", default="django.db.backends.sqlite3", cast=str),
@@ -101,7 +98,6 @@ DATABASES = {
         "PORT": config("DB_PORT", default="", cast=str),
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -131,18 +127,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # REST FRAMEWORK
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 # SIMPLE JWT
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=2),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=100),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=100),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,

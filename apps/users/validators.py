@@ -120,3 +120,11 @@ class ActivationTokenValidator(Validator):
         ):
             self._add_error("token", "Invalid token")
         return self.is_valid()
+
+
+class UserProfileValidator(Validator):
+
+    def validate(self):
+
+        return self.is_valid()
+

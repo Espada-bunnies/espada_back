@@ -12,6 +12,7 @@ class UserRepository:
             user = get_user_model().objects.create_user(
                 username=username, email=email, password=password
             )
+
             return user
         except IntegrityError:
             return None

@@ -1,4 +1,5 @@
 import logging
+from rest_framework.authentication import TokenAuthentication
 
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -6,11 +7,12 @@ from rest_framework import permissions, status, views, viewsets
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from apps.users.models import User
+from apps.users.models import User,UserProfile
 from apps.users.serializers import (ActivateUserSerializer,
                                     ChangePasswordSerializer,
                                     LoginUserSerializer,
-                                    RegisterUserSerializer)
+                                    RegisterUserSerializer,
+                                    UserProfileSerializer)
 from apps.users.services import ActivationService, LoginService
 
 logger = logging.getLogger("django")
@@ -42,6 +44,7 @@ class RegisterView(views.APIView):
         serializer = RegisterUserSerializer(
             data=request.data, context={"request": request}
         )
+
         serializer.is_valid(raise_exception=True)
         data = serializer.save()
         return Response(data, status=status.HTTP_201_CREATED)
@@ -115,6 +118,7 @@ class ResetPasswordView(views.APIView):
     """
     This view is used to send reset password link to user's email after registration or login
     """
+    authentication_classes = [TokenAuthentication]
 
     permission_classes = [permissions.IsAuthenticated]
 
@@ -125,3 +129,33 @@ class ResetPasswordView(views.APIView):
     )
     def get(self, request):
         ActivationService.send_reset_password_link(request, request.user)
+
+
+
+
+class UserProfileView(views.APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+
+        user = User.objects.filter(username=request.user).first()
+        profile = user.user_profile
+
+        user_profile_serializer = UserProfileSerializer(profile)
+
+        return Response(user_profile_serializer.data)
+
+
+    def patch(self, request):
+        profile = request.user.user_profile
+
+        profile = UserProfileSerializer(profile,data=request.data,partial=True)
+
+        if profile.is_valid(raise_exception=True):
+            profile.save()
+            return Response(profile.data)
+
+        return Response(profile._errors)
+
+

@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from .services import ActivationService, LoginService, RegistrationService
 from .validators import (ActivationTokenValidator, LoginValidator,
-                         RegisterValidator, ResetPasswordValidator)
+                         RegisterValidator, ResetPasswordValidator,UserProfileValidator)
 
 
 class LoginUserSerializer(serializers.Serializer):
@@ -69,3 +69,31 @@ class ChangePasswordSerializer(serializers.Serializer):
         instance.set_password(validated_data.get("new_password"))
         instance.save()
         return instance
+
+
+class UserProfileSerializer(serializers.Serializer):
+
+    bio = serializers.CharField(required=False)
+    location = serializers.CharField(required=False)
+    avatar = serializers.ImageField(required=False)
+    age = serializers.IntegerField(required=False)
+    interests = serializers.CharField(required=False)
+
+
+    def validate(self,attrs):
+        validator =  UserProfileValidator(attrs)
+        return validator.validate()
+
+
+    def update(self, instance, validated_data):
+        instance.bio = validated_data.get('bio', instance.bio)
+        instance.location = validated_data.get('location', instance.location)
+        instance.avatar = validated_data.get('avatar', instance.avatar)
+        instance.age = validated_data.get('age', instance.age)
+        instance.interests = validated_data.get('interests', instance.interests)
+        instance.save()
+        return instance
+
+
+
+
