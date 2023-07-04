@@ -1,5 +1,6 @@
 import logging
 from rest_framework.authentication import TokenAuthentication
+from django.shortcuts import render
 
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -158,4 +159,8 @@ class UserProfileView(views.APIView):
 
         return Response(profile._errors)
 
+
+
+def test_oauth(request):
+    return render(request,'testoauth.html')
 
