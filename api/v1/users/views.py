@@ -4,7 +4,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import permissions, status, views, viewsets
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 from apps.users.models import User
 from apps.users.serializers import (ActivateUserSerializer,
@@ -124,4 +124,5 @@ class ResetPasswordView(views.APIView):
         tags=["Auth"],
     )
     def get(self, request):
+        # TODO: Complete it
         ActivationService.send_reset_password_link(request, request.user)
