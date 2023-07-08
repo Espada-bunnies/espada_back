@@ -45,7 +45,9 @@ EMAIL_HOST = config("SMTP_HOST", default="localhost", cast=str)
 EMAIL_PORT = config("SMTP_PORT", default=25, cast=int)
 EMAIL_HOST_USER = config("SMTP_USER", default="", cast=str)
 EMAIL_HOST_PASSWORD = config("SMTP_PASSWORD", default="", cast=str)
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+if DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_USE_TLS = True
 
 
